@@ -132,6 +132,16 @@ static void GCLK2_Initialize(void)
     }
 }
 
+static void GCLK4_Initialize(void)
+{
+    GCLK_REGS->GCLK_GENCTRL[4] = GCLK_GENCTRL_DIV(2U) | GCLK_GENCTRL_SRC(6U) | GCLK_GENCTRL_GENEN_Msk;
+
+    while((GCLK_REGS->GCLK_SYNCBUSY & GCLK_SYNCBUSY_GENCTRL_GCLK4) == GCLK_SYNCBUSY_GENCTRL_GCLK4)
+    {
+        /* wait for the Generator 4 synchronization */
+    }
+}
+
 void CLOCK_Initialize (void)
 {
     /* MISRAC 2012 deviation block start */
@@ -145,12 +155,34 @@ void CLOCK_Initialize (void)
 
     DFLL_Initialize();
     GCLK2_Initialize();
+    GCLK4_Initialize();
     FDPLL0_Initialize();
     GCLK0_Initialize();
     GCLK1_Initialize();
 
     /* MISRAC 2012 deviation block end */
 
+    /* Selection of the Generator and write Lock for CAN0 */
+    GCLK_REGS->GCLK_PCHCTRL[27] = GCLK_PCHCTRL_GEN(0x4U)  | GCLK_PCHCTRL_CHEN_Msk;
+
+    while ((GCLK_REGS->GCLK_PCHCTRL[27] & GCLK_PCHCTRL_CHEN_Msk) != GCLK_PCHCTRL_CHEN_Msk)
+    {
+        /* Wait for synchronization */
+    }
+    /* Selection of the Generator and write Lock for ADC0 */
+    GCLK_REGS->GCLK_PCHCTRL[40] = GCLK_PCHCTRL_GEN(0x1U)  | GCLK_PCHCTRL_CHEN_Msk;
+
+    while ((GCLK_REGS->GCLK_PCHCTRL[40] & GCLK_PCHCTRL_CHEN_Msk) != GCLK_PCHCTRL_CHEN_Msk)
+    {
+        /* Wait for synchronization */
+    }
+    /* Selection of the Generator and write Lock for ADC1 */
+    GCLK_REGS->GCLK_PCHCTRL[41] = GCLK_PCHCTRL_GEN(0x1U)  | GCLK_PCHCTRL_CHEN_Msk;
+
+    while ((GCLK_REGS->GCLK_PCHCTRL[41] & GCLK_PCHCTRL_CHEN_Msk) != GCLK_PCHCTRL_CHEN_Msk)
+    {
+        /* Wait for synchronization */
+    }
 
     /* Configure the AHB Bridge Clocks */
     MCLK_REGS->MCLK_AHBMASK = 0xffffffU;

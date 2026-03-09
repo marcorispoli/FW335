@@ -140,6 +140,10 @@ void SYS_Initialize ( void* data )
 
     EVSYS_Initialize();
 
+    CAN0_Initialize();
+
+    RTC_Initialize();
+
 
     NVIC_Initialize();
 
