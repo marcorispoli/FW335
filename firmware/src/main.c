@@ -48,7 +48,32 @@ int main ( void )
     // Application Protocol initialization
     ApplicationProtocolInit();
     
+    LED1_Clear();
+    LED2_Clear();
+    LED3_Clear();
+    LED4_Clear();
+    LED5_Clear();
+    LED6_Clear();
+    TEST_MAS_Clear();
+    HV_DISABLE_Set();
     
+    // SYNC INTERACE
+    SYNC_START_GRID_Clear();    // Output
+    SYNC_HVON_Clear();          // Output
+    SYNC_PREP_Clear();          // Output
+    // SYNC_REQ_Get()           // Input
+    // SYNC_EW_Get()            // Input
+    // SYNC_GRID_ENA_Get()      // Input
+    RELAY_SW1_Clear();          // Output
+    RELAY_SW2_Clear();          // Output
+    
+    STARTER_RUN_Clear();        // Output
+    STARTER_FREERUN_Clear();    // Output
+    STARTER_SPEED_Clear();      // Output
+    // STARTER_SPEEDOK_Get()      // Input
+    // STARTER_FAULT_Get()      // Input
+    
+    TEST_MAS_Set();
     while ( true )
     {
        /* Maintain state machines of all polled MPLAB Harmony modules. */
@@ -71,7 +96,9 @@ int main ( void )
                 
         if(trigger_time & _1024_ms_TriggerTime){
             trigger_time &=~ _1024_ms_TriggerTime;
-//            uc_VITALITY_LED_Toggle();
+            VITALITY_LED_Toggle();
+            
+                    
              
         }        
      
