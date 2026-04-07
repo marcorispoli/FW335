@@ -145,15 +145,15 @@ typedef enum{
     /// System Status description structure
     typedef struct {
         const unsigned char idx; //!< Address constant 
-        unsigned char d0_spare:8; 
+        unsigned char exposure_in_progress:1; 
+        unsigned char exposure_completed:1; 
+        unsigned char d0_spare:6; 
         unsigned char d1_spare:8; 
         unsigned char d2_spare:8; 
-        unsigned char d3_spare:8; 
+        unsigned char error_code:8; 
     }SYSTEM_STATUS_t;
 
     
-    
-     
     #ifdef _PROTOCOL_C
         /// \ingroup CANPROT
         /// Declaration of the System Status Register  global variables
@@ -173,7 +173,48 @@ typedef enum{
 * No Data registers are implemented
 *
 */
+
+    typedef enum{
+        DATA_EXPOSURE_MODE_IDX = 0,
+        DATA_EXPOSURE_PULSE0_IDX, 
+        DATA_EXPOSURE_PULSE1_IDX, 
+        DATA_EXPOSURE_PULSE2_IDX, 
+        DATA_EXPOSURE_PULSE3_IDX,                 
+    }DATA_INDEX_t;
+
+    typedef struct {
+        const unsigned char idx; //!< Address constant 
+        unsigned char exposure_mode:8; 
+        unsigned char data_mode_spar1:8; 
+        unsigned char data_mode_spar2:8; 
+        unsigned char data_mode_spar3:8; 
+    }DATA_EXPOSURE_MODE_REGISTER_t;
+
+    
+    typedef struct {
+        const unsigned char idx; //!< Address constant 
+        unsigned char hv_dac_L:8; 
+        unsigned char hv_dac_H:8; 
+        unsigned char mAs_L:8; 
+        unsigned char mAs_H:8; 
+    }DATA_EXPOSURE_REGISTER_t;
+
+     
+    #ifdef _PROTOCOL_C
+        DATA_EXPOSURE_MODE_REGISTER_t     DataExposureModeRegister = {.idx=DATA_EXPOSURE_MODE_IDX};
+        DATA_EXPOSURE_REGISTER_t DataExposureRegister0 = {.idx=DATA_EXPOSURE_PULSE0_IDX};
+        DATA_EXPOSURE_REGISTER_t DataExposureRegister1 = {.idx=DATA_EXPOSURE_PULSE1_IDX};
+        DATA_EXPOSURE_REGISTER_t DataExposureRegister2 = {.idx=DATA_EXPOSURE_PULSE2_IDX};
+        DATA_EXPOSURE_REGISTER_t DataExposureRegister3 = {.idx=DATA_EXPOSURE_PULSE3_IDX};
+    #else
+        extern DATA_EXPOSURE_MODE_REGISTER_t     DataExposureModeRegister;
+        extern DATA_EXPOSURE_REGISTER_t DataExposureRegister0;       
+        extern DATA_EXPOSURE_REGISTER_t DataExposureRegister1;       
+        extern DATA_EXPOSURE_REGISTER_t DataExposureRegister2;       
+        extern DATA_EXPOSURE_REGISTER_t DataExposureRegister3;       
+    #endif  
         
+
 //________________________________________ PARAM REGISTER DEFINITION SECTION _     
  
  /**

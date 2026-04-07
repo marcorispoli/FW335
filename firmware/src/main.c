@@ -4,6 +4,8 @@
 #include "definitions.h"                // SYS function prototypes
 #include "application.h"
 #include "Protocol/protocol.h"
+#include "Exposure/exposure.h"
+#include "Starter/starter.h"
 
  /** 
      * \defgroup appMainModule  Main Module 
@@ -36,6 +38,9 @@ static void rtcEventHandler (RTC_TIMER32_INT_MASK intCause, uintptr_t context)
     
 }
 
+
+static unsigned short spi_val = 0;
+    
 int main ( void )
 {
     /* Initialize all modules */
@@ -48,14 +53,14 @@ int main ( void )
     // Application Protocol initialization
     ApplicationProtocolInit();
     
-    LED1_Clear();
-    LED2_Clear();
-    LED3_Clear();
-    LED4_Clear();
-    LED5_Clear();
-    LED6_Clear();
-    TEST_MAS_Clear();
-    HV_DISABLE_Set();
+    LED1_Clear();                           // Tested OK                           
+    LED2_Clear();                           // Tested OK                           
+    LED3_Clear();                           // Tested OK                           
+    LED4_Clear();                           // Tested OK                           
+    LED5_Clear();                           // Tested OK                           
+    LED6_Clear();                           // Tested OK                           
+    TEST_MAS_Clear();                       // Tested OK
+    HV_DISABLE_Clear();
     
     // SYNC INTERACE
     SYNC_START_GRID_Clear();    // Output
@@ -67,13 +72,11 @@ int main ( void )
     RELAY_SW1_Clear();          // Output
     RELAY_SW2_Clear();          // Output
     
-    STARTER_RUN_Clear();        // Output
-    STARTER_FREERUN_Clear();    // Output
-    STARTER_SPEED_Clear();      // Output
-    // STARTER_SPEEDOK_Get()      // Input
-    // STARTER_FAULT_Get()      // Input
+   
     
-    TEST_MAS_Set();
+    ExposureInit();
+    STARTER_Initialization();
+    
     while ( true )
     {
        /* Maintain state machines of all polled MPLAB Harmony modules. */
@@ -85,11 +88,17 @@ int main ( void )
         
         // Timer events activated into the RTC interrupt
         if(trigger_time & _7820_us_TriggerTime){
-            trigger_time &=~ _7820_us_TriggerTime;                                 
+            trigger_time &=~ _7820_us_TriggerTime;           
+            
+            spi_val+=10;            
+            if(spi_val>4095) spi_val = 0;
+            HVREF_Set(spi_val);
+            
         }
 
         if(trigger_time & _15_64_ms_TriggerTime){
             trigger_time &=~ _15_64_ms_TriggerTime;
+           
         }
         
         
@@ -98,10 +107,18 @@ int main ( void )
             trigger_time &=~ _1024_ms_TriggerTime;
             VITALITY_LED_Toggle();
             
-                    
-             
         }        
-     
+
+        if(SYNC_REQ_Get()) LED1_Set();
+        else LED1_Clear();
+        
+        if(SYNC_GRID_ENA_Get()) LED2_Set();
+        else LED2_Clear();
+        
+        if(SYNC_EW_Get()) LED3_Set();
+        else LED3_Clear();
+        
+        
     }
 
     /* Execution should not come here during normal operation */

@@ -65,6 +65,24 @@
 // *****************************************************************************
 // *****************************************************************************
 
+/*** Macros for HVREF_LD pin ***/
+#define HVREF_LD_Set()               (PORT_REGS->GROUP[0].PORT_OUTSET = ((uint32_t)1U << 2U))
+#define HVREF_LD_Clear()             (PORT_REGS->GROUP[0].PORT_OUTCLR = ((uint32_t)1U << 2U))
+#define HVREF_LD_Toggle()            (PORT_REGS->GROUP[0].PORT_OUTTGL = ((uint32_t)1U << 2U))
+#define HVREF_LD_OutputEnable()      (PORT_REGS->GROUP[0].PORT_DIRSET = ((uint32_t)1U << 2U))
+#define HVREF_LD_InputEnable()       (PORT_REGS->GROUP[0].PORT_DIRCLR = ((uint32_t)1U << 2U))
+#define HVREF_LD_Get()               (((PORT_REGS->GROUP[0].PORT_IN >> 2U)) & 0x01U)
+#define HVREF_LD_PIN                  PORT_PIN_PA02
+
+/*** Macros for HVREF_CLR pin ***/
+#define HVREF_CLR_Set()               (PORT_REGS->GROUP[0].PORT_OUTSET = ((uint32_t)1U << 3U))
+#define HVREF_CLR_Clear()             (PORT_REGS->GROUP[0].PORT_OUTCLR = ((uint32_t)1U << 3U))
+#define HVREF_CLR_Toggle()            (PORT_REGS->GROUP[0].PORT_OUTTGL = ((uint32_t)1U << 3U))
+#define HVREF_CLR_OutputEnable()      (PORT_REGS->GROUP[0].PORT_DIRSET = ((uint32_t)1U << 3U))
+#define HVREF_CLR_InputEnable()       (PORT_REGS->GROUP[0].PORT_DIRCLR = ((uint32_t)1U << 3U))
+#define HVREF_CLR_Get()               (((PORT_REGS->GROUP[0].PORT_IN >> 3U)) & 0x01U)
+#define HVREF_CLR_PIN                  PORT_PIN_PA03
+
 /*** Macros for STARTER_FAULT pin ***/
 #define STARTER_FAULT_Set()               (PORT_REGS->GROUP[1].PORT_OUTSET = ((uint32_t)1U << 4U))
 #define STARTER_FAULT_Clear()             (PORT_REGS->GROUP[1].PORT_OUTCLR = ((uint32_t)1U << 4U))
@@ -118,6 +136,23 @@
 #define LED5_InputEnable()       (PORT_REGS->GROUP[1].PORT_DIRCLR = ((uint32_t)1U << 11U))
 #define LED5_Get()               (((PORT_REGS->GROUP[1].PORT_IN >> 11U)) & 0x01U)
 #define LED5_PIN                  PORT_PIN_PB11
+
+/*** Macros for SDO pin ***/
+#define SDO_Get()               (((PORT_REGS->GROUP[1].PORT_IN >> 12U)) & 0x01U)
+#define SDO_PIN                  PORT_PIN_PB12
+
+/*** Macros for CLK pin ***/
+#define CLK_Get()               (((PORT_REGS->GROUP[1].PORT_IN >> 13U)) & 0x01U)
+#define CLK_PIN                  PORT_PIN_PB13
+
+/*** Macros for SPI_CS pin ***/
+#define SPI_CS_Set()               (PORT_REGS->GROUP[1].PORT_OUTSET = ((uint32_t)1U << 14U))
+#define SPI_CS_Clear()             (PORT_REGS->GROUP[1].PORT_OUTCLR = ((uint32_t)1U << 14U))
+#define SPI_CS_Toggle()            (PORT_REGS->GROUP[1].PORT_OUTTGL = ((uint32_t)1U << 14U))
+#define SPI_CS_OutputEnable()      (PORT_REGS->GROUP[1].PORT_DIRSET = ((uint32_t)1U << 14U))
+#define SPI_CS_InputEnable()       (PORT_REGS->GROUP[1].PORT_DIRCLR = ((uint32_t)1U << 14U))
+#define SPI_CS_Get()               (((PORT_REGS->GROUP[1].PORT_IN >> 14U)) & 0x01U)
+#define SPI_CS_PIN                  PORT_PIN_PB14
 
 /*** Macros for SYNC_PREP pin ***/
 #define SYNC_PREP_Set()               (PORT_REGS->GROUP[0].PORT_OUTSET = ((uint32_t)1U << 12U))
@@ -190,6 +225,14 @@
 #define LED3_InputEnable()       (PORT_REGS->GROUP[1].PORT_DIRCLR = ((uint32_t)1U << 17U))
 #define LED3_Get()               (((PORT_REGS->GROUP[1].PORT_IN >> 17U)) & 0x01U)
 #define LED3_PIN                  PORT_PIN_PB17
+
+/*** Macros for CAN0_TX pin ***/
+#define CAN0_TX_Get()               (((PORT_REGS->GROUP[0].PORT_IN >> 22U)) & 0x01U)
+#define CAN0_TX_PIN                  PORT_PIN_PA22
+
+/*** Macros for CAN0_RX pin ***/
+#define CAN0_RX_Get()               (((PORT_REGS->GROUP[0].PORT_IN >> 23U)) & 0x01U)
+#define CAN0_RX_PIN                  PORT_PIN_PA23
 
 /*** Macros for TEST_MAS pin ***/
 #define TEST_MAS_Set()               (PORT_REGS->GROUP[0].PORT_OUTSET = ((uint32_t)1U << 24U))
@@ -294,7 +337,7 @@
 #define GET_PORT_GROUP(pin)  ((PORT_GROUP)(PORT_BASE_ADDRESS + (0x80U * (((uint32_t)pin) >> 5U))))
 #define GET_PIN_MASK(pin)   (((uint32_t)(0x1U)) << (((uint32_t)pin) & 0x1FU))
 
-/* Named type for port group */
+/* Named type for port group */ 
 typedef uint32_t PORT_GROUP;
 
 
@@ -503,6 +546,7 @@ typedef enum
 // Section: Generated API based on pin configurations done in Pin Manager
 // *****************************************************************************
 // *****************************************************************************
+
 // *****************************************************************************
 /* Function:
     void PORT_Initialize(void)

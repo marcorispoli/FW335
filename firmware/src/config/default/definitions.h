@@ -14,7 +14,7 @@
 
 //DOM-IGNORE-BEGIN
 /*******************************************************************************
-* Copyright (C) 2025 Microchip Technology Inc. and its subsidiaries.
+* Copyright (C) 2018 Microchip Technology Inc. and its subsidiaries.
 *
 * Subject to your compliance with these terms, you may use Microchip software
 * and any derivatives exclusively with Microchip products. It is your
@@ -50,11 +50,14 @@
 #include <stdbool.h>
 #include "peripheral/nvmctrl/plib_nvmctrl.h"
 #include "peripheral/evsys/plib_evsys.h"
+#include "peripheral/adc/plib_adc0.h"
 #include "peripheral/port/plib_port.h"
 #include "peripheral/clock/plib_clock.h"
 #include "peripheral/nvic/plib_nvic.h"
+#include "peripheral/wdt/plib_wdt.h"
 #include "peripheral/cmcc/plib_cmcc.h"
 #include "peripheral/can/plib_can0.h"
+#include "peripheral/sercom/spi_master/plib_sercom4_spi_master.h"
 #include "peripheral/rtc/plib_rtc.h"
 
 // DOM-IGNORE-BEGIN
@@ -65,14 +68,8 @@ extern "C" {
 #endif
 // DOM-IGNORE-END
 
-/* Device Information */
-#define DEVICE_NAME          "ATSAME51J20A"
-#define DEVICE_ARCH          "CORTEX-M4"
-#define DEVICE_FAMILY        "SAME"
-#define DEVICE_SERIES        "SAME51"
-
 /* CPU clock frequency */
-#define CPU_CLOCK_FREQUENCY 120000000U
+#define CPU_CLOCK_FREQUENCY 120000000
 
 // *****************************************************************************
 // *****************************************************************************
