@@ -10,6 +10,7 @@ void HVREF_Initialization(void){
     SPI_CS_Set();     // Sets the CS high  
     HVREF_CLR_Clear();  // Set to Clear the data output
     
+    HVREF_Set(0);
 }
 
 

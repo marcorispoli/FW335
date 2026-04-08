@@ -39,8 +39,6 @@ static void rtcEventHandler (RTC_TIMER32_INT_MASK intCause, uintptr_t context)
 }
 
 
-static unsigned short spi_val = 0;
-    
 int main ( void )
 {
     /* Initialize all modules */
@@ -89,10 +87,6 @@ int main ( void )
         // Timer events activated into the RTC interrupt
         if(trigger_time & _7820_us_TriggerTime){
             trigger_time &=~ _7820_us_TriggerTime;           
-            
-            spi_val+=10;            
-            if(spi_val>4095) spi_val = 0;
-            HVREF_Set(spi_val);
             
         }
 
