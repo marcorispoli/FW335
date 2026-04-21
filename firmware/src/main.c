@@ -93,8 +93,8 @@ int main ( void )
         if(trigger_time & _15_64_ms_TriggerTime){
             trigger_time &=~ _15_64_ms_TriggerTime;
            
+            STARTER_15ms_Loop();
         }
-        
         
                 
         if(trigger_time & _1024_ms_TriggerTime){

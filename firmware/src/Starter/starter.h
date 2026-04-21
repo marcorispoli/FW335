@@ -17,11 +17,12 @@
 
 
 ext void STARTER_Initialization(void);
+ext void STARTER_15ms_Loop(void);
 ext void STARTER_Off(void);
 ext void STARTER_ActivateLow(void);
 ext void STARTER_ActivateHigh(void);
-ext void STARTER_SetFreeRun(void);
-ext void STARTER_SetSpeedControl(void);
+ext void STARTER_SetFreeRun(bool state);
+
 ext bool STARTER_isSpeedOk(void);
 ext bool STARTER_isFault(void);
 ext void STARTER_resetFault(void);
