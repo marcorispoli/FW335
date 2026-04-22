@@ -145,11 +145,23 @@ typedef enum{
     /// System Status description structure
     typedef struct {
         const unsigned char idx; //!< Address constant 
+        
+        // D0 Byte encoding
         unsigned char exposure_in_progress:1; 
         unsigned char exposure_completed:1; 
         unsigned char d0_spare:6; 
-        unsigned char d1_spare:8; 
+        
+        // D1 Byte encoding
+        unsigned char starter_on:1;
+        unsigned char starter_high_speed:1;
+        unsigned char starter_fault:1;
+        unsigned char starter_timeout:1;
+        unsigned char d1_spare:4; 
+        
+        // D2 Byte encoding
         unsigned char d2_spare:8; 
+        
+        // D3 Byte encoding
         unsigned char error_code:8; 
     }SYSTEM_STATUS_t;
 
@@ -240,6 +252,7 @@ typedef enum{
 /// This is the list of the implemented COMMANDS
 typedef enum{
    CMD_ABORT = 0,      //!< Abort Command
+   CMD_STARTER = 1,    //!< Activates The High Speed Starter
 }PROTOCOL_COMMANDS_t;
 
 /// \ingroup CANPROT

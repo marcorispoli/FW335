@@ -2,6 +2,7 @@
 
 #include "application.h"
 #include "protocol.h"
+#include "../Starter/starter.h"
 
 static void ApplicationProtocolCommandHandler(uint8_t cmd, uint8_t d0,uint8_t d1,uint8_t d2,uint8_t d3 ); //!< This is the Command protocol callback
 static volatile unsigned char current_command = 0;
@@ -57,7 +58,15 @@ void ApplicationProtocolCommandHandler(uint8_t cmd, uint8_t d0,uint8_t d1,uint8_
         case MET_COMMAND_ABORT:  // This is the Library mandatory 
             MET_Can_Protocol_returnCommandAborted();
             break;
-            
+        
+        case CMD_STARTER:  // This is the Library mandatory 
+            if(d0 == 0)         STARTER_Off();
+            else if(d0 == 1)    STARTER_ActivateLow();
+            else if(d0 == 2)    STARTER_ActivateHigh();
+            else if(d0 == 3)    STARTER_resetFault();            
+            MET_Can_Protocol_returnCommandExecuted(0,0);
+            break; 
+        
         default:
             MET_Can_Protocol_returnCommandError(MET_CAN_COMMAND_NOT_AVAILABLE);
     }

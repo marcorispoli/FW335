@@ -3,6 +3,7 @@
 #include "definitions.h"         
 #include "starter.h"
 #include "application.h"
+#include "../Protocol/protocol.h"
 
 #define LOW_SPEED_ACTIVATION_TMO_MS  5000 // % second maximum activation time
 #define HIGH_SPEED_ACTIVATION_TMO_MS 5000 // % second maximum activation time
@@ -22,21 +23,56 @@
 static int current_starter_command;
 static int current_sequence;
 static int current_sequence_timer;
+static bool high_speed_selected;
+static bool starter_timeout_condition;
+
+void STARTER_UpdateCanRegisters(void){
+    
+    // Execution Status
+    if(current_starter_command != STARTER_COMMAND_OFF) SystemStatusRegister.starter_on = 1;
+    else SystemStatusRegister.starter_on = 0;
+    
+    // Fault Condition
+    if(STARTER_FAULT_Get()) SystemStatusRegister.starter_fault = 1;
+    else SystemStatusRegister.starter_fault = 0;    
+
+    // Timeout Condition
+    if(starter_timeout_condition) SystemStatusRegister.starter_timeout = 1;
+    else  SystemStatusRegister.starter_timeout = 0;
+    
+    // High Speed Selected Mode
+    if(high_speed_selected) SystemStatusRegister.starter_high_speed = 1;
+    else  SystemStatusRegister.starter_high_speed = 0;
+    
+            
+    // Update The Can Registers
+    encodeStatusRegister(&SystemStatusRegister);
+}
 
 void STARTER_Initialization(void){
     current_starter_command = STARTER_COMMAND_OFF;
-    current_sequence = 0;
+    current_sequence = 0;    
+    starter_timeout_condition = false;
+    high_speed_selected = false;
     
-    STARTER_Off();
+    STARTER_Off();    
     
 }
+
+void STARTER_SetHighSpeedMode(bool state){
+    high_speed_selected = state;
+    if(state) STARTER_SPEED_Set();
+    else STARTER_SPEED_Clear();    
+}
+
 void STARTER_Activating_Low_Procedure(){
     switch(current_sequence){
         // Reset Fault Procedure
         case 0:
             STARTER_RUN_Clear();
-            STARTER_FREERUN_Clear();
-            STARTER_SPEED_Clear(); // Low Speed Setting    
+            STARTER_FREERUN_Clear();            
+            STARTER_SetHighSpeedMode(false);
+            STARTER_UpdateCanRegisters();
             
             // Reset Fault condition 
             if(STARTER_FAULT_Get()){                
@@ -69,10 +105,10 @@ void STARTER_Activating_Low_Procedure(){
             // The Reset fault condition failed:
             // End Sequence in Fault condition
             if(STARTER_FAULT_Get()){
-                STARTER_Off();
+                STARTER_Off();                
                 return;
             }
-            
+                        
             STARTER_FREERUN_Clear();
             current_sequence++;
             break;
@@ -81,6 +117,7 @@ void STARTER_Activating_Low_Procedure(){
             STARTER_RUN_Set();
             current_sequence_timer = MS_COUNTS(100);  
             current_sequence++;
+            STARTER_UpdateCanRegisters();
             break;
             
         case 4: // Wait a minimum time before to monitor the activation
@@ -99,6 +136,7 @@ void STARTER_Activating_Low_Procedure(){
                 
                 // Timeout Activation
                 if(!current_sequence_timer){
+                    starter_timeout_condition = true;
                     STARTER_Off();
                     return;
                 }                
@@ -106,7 +144,7 @@ void STARTER_Activating_Low_Procedure(){
             
             // Wait for the Speed OK or Fault Condition
             if(STARTER_FAULT_Get()){
-                STARTER_Off();
+                STARTER_Off();               
                 return;
             }
             
@@ -114,6 +152,7 @@ void STARTER_Activating_Low_Procedure(){
             if(STARTER_SPEEDOK_Get()){
                 current_sequence = 0;
                 current_starter_command = STARTER_COMMAND_ACTIVATED_LOW;
+                STARTER_UpdateCanRegisters();
                 return;
             }
                         
@@ -138,7 +177,8 @@ void STARTER_Activating_High_Procedure(){
             
             // No error
             STARTER_FREERUN_Clear();
-            STARTER_SPEED_Set(); // High Speed Setting    
+            STARTER_SetHighSpeedMode(true);     
+            STARTER_UpdateCanRegisters();
             current_sequence = 3; // Activates the sequence
             break;
             
@@ -162,10 +202,9 @@ void STARTER_Activating_High_Procedure(){
             // The Reset fault condition failed:
             // End Sequence in Fault condition
             if(STARTER_FAULT_Get()){
-                STARTER_Off();
+                STARTER_Off();                
                 return;
             }
-            
             STARTER_FREERUN_Clear();
             current_sequence++;
             break;
@@ -174,6 +213,7 @@ void STARTER_Activating_High_Procedure(){
             STARTER_RUN_Set();
             current_sequence_timer = MS_COUNTS(100);  
             current_sequence++;
+            STARTER_UpdateCanRegisters();
             break;
             
         case 4: // Wait a minimum time before to monitor the activation
@@ -192,7 +232,8 @@ void STARTER_Activating_High_Procedure(){
                 
                 // Timeout Activation
                 if(!current_sequence_timer){
-                    STARTER_Off();
+                    starter_timeout_condition = true;
+                    STARTER_Off();                    
                     return;
                 }                
             }
@@ -207,6 +248,7 @@ void STARTER_Activating_High_Procedure(){
             if(STARTER_SPEEDOK_Get()){
                 current_sequence = 0;
                 current_starter_command = STARTER_COMMAND_ACTIVATED_HIGH;
+                STARTER_UpdateCanRegisters();
                 return;
             }
                         
@@ -288,6 +330,8 @@ void STARTER_Off(void){
     current_starter_command = STARTER_COMMAND_OFF;
     current_sequence_timer = 0;
     current_sequence = 0;
+    
+    STARTER_UpdateCanRegisters();
     return;
 }
 
@@ -301,7 +345,9 @@ void STARTER_ActivateLow(void){
     
     current_starter_command = STARTER_COMMAND_ACTIVATING_LOW;
     current_sequence = 0;
+    starter_timeout_condition = false;
     
+    STARTER_UpdateCanRegisters();    
 }
 
 void STARTER_ActivateHigh(void){
@@ -311,10 +357,14 @@ void STARTER_ActivateHigh(void){
     
     current_starter_command = STARTER_COMMAND_ACTIVATING_HIGH;
     current_sequence = 0;
+    starter_timeout_condition = false;
+    
+    STARTER_UpdateCanRegisters();
 }
 
 void STARTER_resetFault(void){
     if(current_starter_command != STARTER_COMMAND_OFF)  return;
+    starter_timeout_condition = false;
     
     if(!STARTER_FAULT_Get()){
         STARTER_Off();
@@ -323,6 +373,7 @@ void STARTER_resetFault(void){
     
     current_starter_command = STARTER_COMMAND_RESET_FAULT;
     current_sequence = 0;
+    STARTER_UpdateCanRegisters();
 }
 
 void STARTER_SetFreeRun(bool state){
